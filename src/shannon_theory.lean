@@ -1,7 +1,7 @@
 import algebra.big_operators
 import data.real.basic
 import analysis.special_functions.exp_log
-import measure_theory.probability_mass_function
+import probability_theory
 
 -- open_locale big_operators -- this enables the notation
 
@@ -28,11 +28,13 @@ def Shannon_entropy (X : multiset ℝ) : ℝ
 -- def Shannon_entropy (X : finset ℝ) : ℝ
 -- := - ∑ x in X, x * real.log(x)
 
+notation `H(`X`)` := Shannon_entropy X
+
 /-
 Theorem (non-negativity): Shannon entropy is non-negative for 
 any random variable.
 -/
-theorem is_nonnegative_Shannon_entropy : 
+theorem Shannon_entropy_nonneg : 
 ∀ (X : multiset ℝ), Shannon_entropy(X) ≥ 0 := 
 begin
     sorry
@@ -97,16 +99,145 @@ end
 
 ---- CONDITIONAL ENTROPY
 
-def cond_entropy (XY : multiset ℝ) (y : ℕ) : ℝ := sorry 
+def cond_entropy {Xdim Ydim : ℕ} (XY : matrix (fin Xdim) (fin Ydim) ℝ) : ℝ := 
+- ∑ x in finset.range(Xdim), 
+∑ y in finset.range(Ydim), 
+(cond_prob XY x y) * real.log(cond_prob XY x y)
 -- XY is a joint prob dist of X and Y
 -- Note that XY.card = X.card * Y.card
 -- We can write it as a matrix containing the probabilities, 
 -- which we can then access by saying something like XY(x,y).
 -- The events are encoded in the indices of the matrix. For two 
 -- dice we would write something like XY(1,4). For two fair dice 
--- would come out to XY(1,4) = 
+-- would come out to XY(1,4) = 1/6 * 1/6.
 
-notation `H(` X `|` y `)` := cond_entropy XY y
+notation `H(` XY `#` X `|` Y `)` := cond_entropy XY X Y 
+-- we need to know which rndm variable is dependent on 
+-- which rndm variable.
+
+/-
+"The conditional entropy H(X|Y) as well deserves an interpretation. Suppose that 
+Alice possesses random variable X and Bob possesses random variable Y . The 
+conditional entropy H(X|Y ) is the amount of uncertainty that Bob has about X 
+given that he already possesses Y."
+https://arxiv.org/pdf/1106.1445.pdf
+-/
+
+/-
+Theorem () : conditioning does not increase entropy.
+"The above interpretation of the conditional entropy H(X|Y ) immediately suggests that
+it should be less than or equal to the entropy H(X). That is, having access to a side
+variable Y should only decrease our uncertainty about another variable."
+https://arxiv.org/pdf/1106.1445.pdf    
+-/
+theorem conditioning_and_entropy_inequality : 
+H(X) ≥ H(X|Y) :=
+begin
+    sorry,
+end
+
+
+
+
+---- JOINT ENTROPY
+
+/-
+Definition (joint entropy): 
+-/
+def joint_entropy {Xdim Ydim : ℕ} (XY : matrix (fin Xdim) (fin Ydim) ℝ) : ℝ :=
+- ∑ x in finset.range(Xdim), 
+∑ y in finset.range(Ydim), 
+(joint_prob XY x y) * real.log(joint_prob XY x y)
+
+
+
+
+---- CHAIN RULE
+
+/-
+Theorem (chain rule): ...
+-/
+@[simp]
+theorem chain_rule_1 {Xdim Ydim : ℕ} {XY : matrix (fin Xdim) (fin Ydim) ℝ} : 
+joint_entropy XY = Shannon_entropy X + cond_entropy XY Y X := 
+begin
+    sorry,
+end
+
+@[simp]
+theorem chain_rule_2 {Xdim Ydim : ℕ} {XY : matrix (fin Xdim) (fin Ydim) ℝ} : 
+joint_entropy XY = Shannon_entropy Y + cond_entropy XY X Y :=
+begin
+    sorry,
+end
+
+theorem chain_rule : 
+H(X₁, ..., Xₙ) = H(X₁) + H(X₂|X₁) + ... + H(Xₙ|X_{n-1}, ..., X₁) :=
+begin
+    sorry,
+end
+
+
+
+
+---- SUBADDITIVITY
+
+/-
+Theorem (entropy is subadditive): ...
+-/
+theorem entropy_subadditive : 
+H(X₁, ..., Xₙ) ≤ ∑ i in finset.range(n), H(Xᵢ) :=
+begin
+    sorry,
+end
+
+
+
+
+---- MUTUAL INFORMATION
+
+/-
+Definition (mutual information): Let X and Y be discrete random variables with
+joint probability distribution pX,Y (x, y). The mutual information I(X; Y ) is the marginal
+entropy H(X) less the conditional entropy H(X|Y):
+I(X; Y ) ≡ H(X) − H(X|Y).
+https://arxiv.org/pdf/1106.1445.pdf 
+-/
+def mutual_info : ℝ := Shannon_entropy(X) - (cond_entropy XY X Y)
+
+notation `I(`X`;`Y`)` := mutual_info X Y
+
+/-
+Lemma (symmetry in the input): mutual information is symmetric in the input.
+-/
+@[simp]
+lemma mutual_info_symmetric : 
+I(X;Y) = I(Y;X) :=
+begin
+    sorry,
+end
+
+/-
+Lemma (nonnegativity): The mutual information I(X; Y) is non-negative for any 
+random variables X and Y :
+I(X; Y ) ≥ 0.
+-/
+lemma mutual_info_nonneg : I(X;Y) ≥ 0 := 
+begin
+    sorry,
+end
+
+/-
+Lemma (mutual info zero iff independent random variable) : I(X;Y) = 0 if and 
+only if X and Y are independent random variables (i.e., if pX,Y (x, y) =
+pX(x)pY (y)).
+-/
+lemma mutual_info_zero_iff_indpndnt_rnd_vars : 
+I(X;Y) = 0 ↔ indpndnt_rnd_vars X Y :=
+begin
+    sorry,
+end
+
 
 
 
