@@ -1,8 +1,8 @@
 [package]
 name = "Shannon-theory"
 version = "0.1"
-lean_version = "leanprover-community/lean:3.19.0"
+lean_version = "leanprover-community/lean:3.20.0"
 path = "src"
 
 [dependencies]
-mathlib = {git = "https://github.com/leanprover-community/mathlib", rev = "629638618f4af03b051bf81bc7a376e9fdbcdce3"}
+mathlib = {git = "https://github.com/leanprover-community/mathlib", rev = "5d35e626086c4e1639e49cd7cf574bc48592f554"}

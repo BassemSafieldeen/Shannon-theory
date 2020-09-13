@@ -1,5 +1,10 @@
 import data.real.basic
-import linear_algebra.matrix
+import data.finset.basic
+-- import linear_algebra.matrix
+
+open_locale big_operators
+
+
 
     --    .-------.    ______
     --   /   o   /|   /\     \
@@ -8,12 +13,6 @@ import linear_algebra.matrix
     --  |   o   |o/ \o   /o    /
     --  |     o |/   \ o/  o  /
     --  '-------'     \/____o/
-
----- NOTES
-
--- We think of discrete joint probability distributions as 
--- matrices. The probability that information source gives 
--- X = x and Y = y is stored in XY(x,y).
 
 
 
@@ -53,23 +52,77 @@ p_XY(x,y) = p_X(x) * p_Y(y)
 
 noncomputable theory
 
-structure random_variable (α : Type) (n : ℕ) : Type :=
-(outcomes      : multiset α)
-(probabilities : multiset ℝ) -- do we know of probabilities that are not real numbers?
+---- AN PROBABILITY EVENT
+
+structure event (α : Type) : Type :=
+(outcome : α) -- α is the type of the outcome
+(probability : ℝ)
+
+def coin_heads : event ℕ := {outcome := 4, probability := 1/4}
+
+
+---- RANDOM VARIABLE
+
+/-
+Definition (random variable): A random variable is a finset of events, 
+and a hypothesis that the probabilities of all the events add up to 1.
+-/
+structure random_variable (α : Type) : Type :=
+(events : list (event α))
+(normalized : (list.map (λ (e : event α), e.probability) events).sum = 1) 
+-- (normalized : ∑ e in events, e.probability = 1)
+-- (outcomes      : multiset α)
+-- (probabilities : multiset ℝ) -- do we know of probabilities that are not real numbers?
 -- need to add hypothesis that outcomes.card = probabilities.card?
-(normalized    : probabilities.sum = 1)
+-- (normalized    : probabilities.sum = 1)
+
 
 /-
 An example of a random variable: A 6-faced die. It is a 
 random variable that can take one of 6 values, all of 
 which have type ℕ.
 -/
-def six_faced_die : random_variable ℕ 6 :=
+def e1 : event ℕ := {outcome := 1, probability := 1/6}
+def e2 : event ℕ := {outcome := 2, probability := 1/6}
+def e3 : event ℕ := {outcome := 3, probability := 1/6}
+def e4 : event ℕ := {outcome := 4, probability := 1/6}
+def e5 : event ℕ := {outcome := 5, probability := 1/6}
+def e6 : event ℕ := {outcome := 6, probability := 1/6}
+
+@[simp]
+lemma temp1 : e1.probability = 1/6 := rfl
+@[simp]
+lemma temp2 : e2.probability = 1/6 := rfl
+@[simp]
+lemma temp3 : e3.probability = 1/6 := rfl
+@[simp]
+lemma temp4 : e4.probability = 1/6 := rfl
+@[simp]
+lemma temp5 : e5.probability = 1/6 := rfl
+@[simp]
+lemma temp6 : e6.probability = 1/6 := rfl
+
+def six_faced_die : random_variable ℕ :=
 {
-    outcomes := {1,2,3,4,5,6},
-    probabilities := {1/6, 1/6, 1/6, 1/6, 1/6, 1/6},
-    normalized := by norm_num
+    events := [e1,e2,e3,e4,e5,e6],
+    normalized := by {simp, norm_num},
 }
+
+
+
+example : (list.map (λ (e : event ℕ), e.probability) [e1,e2,e3,e4,e5,e6]).sum = 1 :=
+begin
+    simp,
+    norm_num,
+end
+
+example : 2 * e1.probability  = 2/6 := 
+begin
+    simp,
+end
+
+
+#check ({1,2,3,4,4} : finset ℕ)
 
 /-
 Another example of a random variable: A quantum information 
@@ -82,6 +135,10 @@ def Bell_die : random_variable (pure_state 2) 4 :=
     normalized := by norm_num
 }
 
+-- How do we refer to the probability associated with a given 
+-- outcome? Ideally we would like to be able to say 
+-- #check six_faced_die(5) and get ℝ for the type.
+
 
 
 
@@ -89,5 +146,7 @@ def Bell_die : random_variable (pure_state 2) 4 :=
 
 def indpndnt_rdm_vars 
 {α : Type} {n m : ℕ} 
-(X : random_variable α n) (Y : random_variable α m) : Prop := 
-p_XY(x,y) = p_X(x) * p_Y(y)
+(X : random_variable α n) (Y : random_variable α m)
+(XY : random_variable α (n*m))
+{hXY : XY.outcomes = zip(X.outcomes, Y.outcomes)} : Prop := 
+∀ x in  XY(x,y) = X(x) * Y(y)
