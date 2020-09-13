@@ -52,13 +52,13 @@ p_XY(x,y) = p_X(x) * p_Y(y)
 
 noncomputable theory
 
----- AN PROBABILITY EVENT
+---- A PROBABILITY EVENT
 
 structure event (α : Type) : Type :=
 (outcome : α) -- α is the type of the outcome
 (probability : ℝ)
 
-def coin_heads : event ℕ := {outcome := 4, probability := 1/4}
+def coin_heads : event ℕ := {outcome := 1, probability := 1/2}
 
 
 ---- RANDOM VARIABLE
@@ -70,11 +70,18 @@ and a hypothesis that the probabilities of all the events add up to 1.
 structure random_variable (α : Type) : Type :=
 (events : list (event α))
 (normalized : (list.map (λ (e : event α), e.probability) events).sum = 1) 
--- (normalized : ∑ e in events, e.probability = 1)
--- (outcomes      : multiset α)
--- (probabilities : multiset ℝ) -- do we know of probabilities that are not real numbers?
--- need to add hypothesis that outcomes.card = probabilities.card?
--- (normalized    : probabilities.sum = 1)
+
+/-
+A function that takes two random variables and gives a random variable 
+that represents the joint probability distribution on both variables.
+-/
+def from_indpndnt_rnd_vars {α β : Type} 
+(X : random_variable α) (Y : random_variable β) :
+random_variable := 
+{
+    events := sorry, -- all the permutations
+    normalized := sorry,
+}
 
 
 /-
@@ -108,8 +115,6 @@ def six_faced_die : random_variable ℕ :=
     normalized := by {simp, norm_num},
 }
 
-
-
 example : (list.map (λ (e : event ℕ), e.probability) [e1,e2,e3,e4,e5,e6]).sum = 1 :=
 begin
     simp,
@@ -119,6 +124,7 @@ end
 example : 2 * e1.probability  = 2/6 := 
 begin
     simp,
+    norm_num,
 end
 
 
@@ -128,11 +134,25 @@ end
 Another example of a random variable: A quantum information 
 that outputs one of the 4 Bell states
 -/
-def Bell_die : random_variable (pure_state 2) 4 :=
+def Bell1 : event (pure_state 2) := {outcome := |ψ⁺⟩, probability := 1/4}
+def Bell2 : event (pure_state 2) := {outcome := |ψ⁻⟩, probability := 1/4}
+def Bell3 : event (pure_state 2) := {outcome := |φ⁺⟩, probability := 1/4}
+def Bell4 : event (pure_state 2) := {outcome := |φ⁻⟩, probability := 1/4}
+
+@[simp]
+lemma tempBell1 : Bell1.probability = 1/4 := rfl
+@[simp]
+lemma tempBell2 : Bell2.probability = 1/4 := rfl
+@[simp]
+lemma tempBell3 : Bell3.probability = 1/4 := rfl
+@[simp]
+lemma tempBell4 : Bell4.probability = 1/4 := rfl
+
+
+def Bell_die : random_variable (pure_state 2):=
 {
-    outcomes := {|ψ⁺⟩, |ψ⁻⟩, |φ⁺⟩, |φ⁻⟩},
-    probabilities := {1/4, 1/4, 1/4, 1/4},
-    normalized := by norm_num
+    events := [Bell1, Bell2, Bell3, Bell4],
+    normalized := by {simp, norm_num},
 }
 
 -- How do we refer to the probability associated with a given 
@@ -145,8 +165,5 @@ def Bell_die : random_variable (pure_state 2) 4 :=
 ---- INDEPENDENT RANDOM VARIABLES
 
 def indpndnt_rdm_vars 
-{α : Type} {n m : ℕ} 
-(X : random_variable α n) (Y : random_variable α m)
-(XY : random_variable α (n*m))
-{hXY : XY.outcomes = zip(X.outcomes, Y.outcomes)} : Prop := 
-∀ x in  XY(x,y) = X(x) * Y(y)
+{α : Type}
+(XY : random_variable α) : Prop := sorry
