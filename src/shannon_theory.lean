@@ -7,9 +7,7 @@ import measure_theory.probability_mass_function
 
 noncomputable theory -- without this there is an error
 
-/-
-Helpers
--/
+---- HELPERS
 
 -- I got this from the Lean Zulip
 theorem multiset.map_repeat {α β : Sort*} (f : α → β) (x : α) (n : ℕ) :
@@ -17,16 +15,18 @@ theorem multiset.map_repeat {α β : Sort*} (f : α → β) (x : α) (n : ℕ) :
 nat.rec_on n rfl $ λ n ih, by simp_rw [multiset.repeat_succ, multiset.map_cons, ih]
 
 
+
+
+---- SHANNON ENTROPY 
+
 /-
 Definition: Shannon entropy. 
 -/
-
 def Shannon_entropy (X : multiset ℝ) : ℝ
 := - (multiset.map (λ (x : ℝ), x * real.log(x)) X).sum
 
 -- def Shannon_entropy (X : finset ℝ) : ℝ
 -- := - ∑ x in X, x * real.log(x)
-
 
 /-
 Theorem (non-negativity): Shannon entropy is non-negative for 
@@ -47,7 +47,7 @@ theorem concavity := sorry
 /-
 Definition (deterministic random variable): 
 -/
-def is_deterministic := sorry
+def is_deterministic (X : multiset ℝ) : Prop := sorry
 
 /-
 Theorem (Minimum value): Shannon entropy vanishes if and only if 
@@ -59,29 +59,19 @@ begin
     sorry
 end
 
-
 /-
 Definition (uniform random variable): a random variable
 whose  probabilities are equal to 1/n, where n 
 is the number of symbols that the random variable 
 can assume.
 -/
-
 def is_uniform_rnd_var (X : multiset ℝ) : Prop :=
 X = multiset.repeat (1/X.card) X.card
-
--- def is_uniform_rnd_var (X : finset ℝ) : Prop :=
--- ∀ x : ℝ, x ∈ X → x = 1 / X.card
-
--- def is_uniform_rnd_var (X : multiset ℝ) : Prop :=
--- ∀ x : ℝ, x ∈ X → x = 1 / X.card
-
 
 /-
 Theorem: The Shannon entropy of a uniform 
 random variable is log(n).
 -/
-
 theorem Shnn_entropy_uniform_rdm_var (X : multiset ℝ) (hX : X.card ≠ 0) : 
 is_uniform_rnd_var(X) → Shannon_entropy X = real.log(X.card)
 :=
@@ -102,6 +92,21 @@ begin
     exact hX,
 end
 
+
+
+
+---- CONDITIONAL ENTROPY
+
+def cond_entropy (XY : multiset ℝ) (y : ℕ) : ℝ := sorry 
+-- XY is a joint prob dist of X and Y
+-- Note that XY.card = X.card * Y.card
+-- We can write it as a matrix containing the probabilities, 
+-- which we can then access by saying something like XY(x,y).
+-- The events are encoded in the indices of the matrix. For two 
+-- dice we would write something like XY(1,4). For two fair dice 
+-- would come out to XY(1,4) = 
+
+notation `H(` X `|` y `)` := cond_entropy XY y
 
 
 
