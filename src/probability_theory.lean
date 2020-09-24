@@ -72,12 +72,28 @@ structure random_variable (α : Type) : Type :=
 (normalized : (list.map (λ (e : event α), e.probability) events).sum = 1) 
 
 /-
+Definition (uniform random variable)
+-/
+class uniform_random_variable (α : Type)
+extends random_variable (α : Type) :=
+-- (prob_const : ∀ (p : ℝ) {hp : p ∈ prob_dist}, p = 1/prob_dist.card)
+(prob_const : list.map (λ (e : event α), e.probability) events = list.repeat (1/events.length) events.length)
+
+/-
+Definition (uniform random variable)
+-/
+class deterministic_random_variable (α : Type)
+extends random_variable (α : Type) :=
+-- (exactly_one_element_eq_1 : clear from the placeholder name)
+(one_element_eq_1 : ∃ (e : event α) {he : e ∈ events}, e.probability = 1)
+
+/-
 A function that takes two random variables and gives a random variable 
 that represents the joint probability distribution on both variables.
 -/
-def from_indpndnt_rnd_vars {α β : Type} 
-(X : random_variable α) (Y : random_variable β) :
-random_variable := 
+def from_indpndnt_rnd_vars {α : Type} 
+(X : random_variable α) (Y : random_variable α) :
+random_variable α := 
 {
     events := sorry, -- all the permutations
     normalized := sorry,
