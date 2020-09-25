@@ -1,5 +1,6 @@
 import algebra.big_operators
 import data.real.basic
+import data.list.basic
 import analysis.special_functions.exp_log
 import probability_theory
 
@@ -25,6 +26,12 @@ Definition: Shannon entropy.
 def Shannon_entropy (X : multiset ℝ) : ℝ
 := - (multiset.map (λ (x : ℝ), x * real.log(x)) X).sum
 
+def Shannon_entropy' {α : Type} (X : random_variable α) : ℝ
+:= - (list.map (λ (e : event α), e.probability * real.log(e.probability)) X.events).sum
+
+-- def Shannon_entropy'' {α : Type} (X : random_variable α) : ℝ
+-- := - ∑ e ∈ X.events, e.probability * real.log(e.probability)
+
 -- def Shannon_entropy (X : finset ℝ) : ℝ
 -- := - ∑ x in X, x * real.log(x)
 
@@ -40,6 +47,13 @@ begin
     sorry
 end
 
+theorem Shannon_entropy_nonneg' {α : Type} : 
+∀ (X : random_variable α), Shannon_entropy'(X) ≥ 0 := 
+begin
+    unfold Shannon_entropy',
+    sorry
+end
+
 /-
 Theorem (concavity): Shannon entropy is concave in the probability 
 density.
@@ -49,7 +63,7 @@ theorem concavity := sorry
 /-
 Definition (deterministic random variable): 
 -/
-def is_deterministic (X : multiset ℝ) : Prop := sorry
+-- def is_deterministic (X : multiset ℝ) : Prop := sorry
 
 /-
 Theorem (Minimum value): Shannon entropy vanishes if and only if 
@@ -57,6 +71,12 @@ X is a deterministic variable.
 -/
 theorem Shannon_entropy_minimum_value : 
 ∀ (X : multiset ℝ), Shannon_entropy(X) = 0 ↔ is_deterministic X :=
+begin
+    sorry
+end
+
+theorem Shannon_entropy_minimum_value' {α : Type} : 
+∀ (X : random_variable α), Shannon_entropy(X) = 0 ↔ is_deterministic X :=
 begin
     sorry
 end
