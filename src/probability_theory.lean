@@ -59,6 +59,19 @@ structure event (α : Type) : Type :=
 (probability : ℝ)
 
 def coin_heads : event ℕ := {outcome := 1, probability := 1/2}
+#check coin_heads.probability
+#check event.probability coin_heads
+
+/--
+A function that takes two events and gives an event.
+-/
+def of_indpndt_events {α : Type} (e₁ e₂ : event α) : event (α × α) := 
+{
+    outcome := (e₁.outcome, e₂.outcome),
+    probability := e₁.probability * e₂.probability,
+}
+
+
 
 
 ---- RANDOM VARIABLE
@@ -75,15 +88,15 @@ structure random_variable (α : Type) : Type :=
 Definition (uniform random variable)
 -/
 class uniform_random_variable (α : Type)
-extends random_variable (α : Type) :=
+extends random_variable α :=
 -- (prob_const : ∀ (p : ℝ) {hp : p ∈ prob_dist}, p = 1/prob_dist.card)
 (prob_const : list.map (λ (e : event α), e.probability) events = list.repeat (1/events.length) events.length)
 
 /-
-Definition (uniform random variable)
+Definition (deterministic random variable)
 -/
 class deterministic_random_variable (α : Type)
-extends random_variable (α : Type) :=
+extends random_variable α :=
 -- (exactly_one_element_eq_1 : clear from the placeholder name)
 (one_element_eq_1 : ∃ (e : event α) {he : e ∈ events}, e.probability = 1)
 
@@ -91,14 +104,31 @@ extends random_variable (α : Type) :=
 A function that takes two random variables and gives a random variable 
 that represents the joint probability distribution on both variables.
 -/
-def from_indpndnt_rnd_vars {α : Type} 
+def of_indpndnt_rnd_vars {α : Type}
 (X : random_variable α) (Y : random_variable α) :
-random_variable α := 
+random_variable (α × α) := 
 {
-    events := sorry, -- all the permutations
-    normalized := sorry,
+    -- list ( ⟨((X.events i).outcome, (Y.events j).outcome), (X.events i).probability * (Y.events j).probability⟩ : event (α × α) )
+    -- events := list.product list((X.events i).outcome) list((Y.events j).outcome), -- all the permutations
+    events := list.map (λ x : (event α × event α), of_indpndt_events x.1 x.2) (list.product X.events Y.events),
+    -- events := sorry,
+    -- events := 
+    -- begin
+    --     let tmp := (list.product X.events Y.events),
+    --     exact list.map (λ x : (event α × event α), of_indpndt_events x.1 x.2) tmp,
+    -- end,
+    normalized := 
+    begin
+        simp,
+        unfold of_indpndt_events,
+        
+        sorry,
+    end,
 }
 
+#eval (list.product [1,2,3,4] [3,4,5,2]).tail
+#check (2,3)
+#check (2,(3,4))
 
 /-
 An example of a random variable: A 6-faced die. It is a 

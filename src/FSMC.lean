@@ -7,7 +7,6 @@ structure FSMC : Type :=
 (PFA : )
 (output_alphabet : )
 
+def B_alpha : FSMC := sorry
 
-instance FSMC : FSMC_B_alpha
-
-instance FSMC : FSMC_B_alpha'
+def B_alpha' : FSMC := sorry
