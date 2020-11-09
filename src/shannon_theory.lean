@@ -142,10 +142,10 @@ end
 
 ---- CONDITIONAL ENTROPY
 
-def cond_entropy {Xdim Ydim : ℕ} (XY : matrix (fin Xdim) (fin Ydim) ℝ) : ℝ := 
-- ∑ x in finset.range(Xdim), 
-∑ y in finset.range(Ydim), 
-(cond_prob XY x y) * real.log(cond_prob XY x y)
+-- def cond_entropy {Xdim Ydim : ℕ} (XY : matrix (fin Xdim) (fin Ydim) ℝ) : ℝ := 
+-- - ∑ x in finset.range(Xdim), 
+-- ∑ y in finset.range(Ydim), 
+-- (cond_prob XY x y) * real.log(cond_prob XY x y)
 -- XY is a joint prob dist of X and Y
 -- Note that XY.card = X.card * Y.card
 -- We can write it as a matrix containing the probabilities, 
@@ -154,7 +154,7 @@ def cond_entropy {Xdim Ydim : ℕ} (XY : matrix (fin Xdim) (fin Ydim) ℝ) : ℝ
 -- dice we would write something like XY(1,4). For two fair dice 
 -- would come out to XY(1,4) = 1/6 * 1/6.
 
-notation `H(` XY `#` X `|` Y `)` := cond_entropy XY X Y 
+-- notation `H(` XY `#` X `|` Y `)` := cond_entropy XY X Y 
 -- we need to know which rndm variable is dependent on 
 -- which rndm variable.
 
@@ -187,10 +187,10 @@ end
 /-
 Definition (joint entropy): 
 -/
-def joint_entropy {Xdim Ydim : ℕ} (XY : matrix (fin Xdim) (fin Ydim) ℝ) : ℝ :=
-- ∑ x in finset.range(Xdim), 
-∑ y in finset.range(Ydim), 
-(joint_prob XY x y) * real.log(joint_prob XY x y)
+-- def joint_entropy {Xdim Ydim : ℕ} (XY : matrix (fin Xdim) (fin Ydim) ℝ) : ℝ :=
+-- - ∑ x in finset.range(Xdim), 
+-- ∑ y in finset.range(Ydim), 
+-- (joint_prob XY x y) * real.log(joint_prob XY x y)
 
 
 
