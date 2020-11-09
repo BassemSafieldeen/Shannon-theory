@@ -1,25 +1,24 @@
 import algebra.big_operators
+import linear_algebra.basic
 import data.real.basic
 import data.list.basic
 import analysis.special_functions.exp_log
 import probability_theory
 
+
+open_locale big_operators
+
+
+universe x
+
+variable {ι : Type x} -- indexing type
+variables {n : ℕ} (s : finset ι) {X : ι → ℝ} {hX : ∑ i in s, X i = 1} -- discrete probability distribution
+
 -- open_locale big_operators -- this enables the notation
 
-noncomputable theory -- without this there is an error
-
----- HELPERS
-
--- I got this from the Lean Zulip
-theorem multiset.map_repeat {α β : Sort*} (f : α → β) (x : α) (n : ℕ) :
-  (multiset.repeat x n).map f = multiset.repeat (f x) n :=
-nat.rec_on n rfl $ λ n ih, by simp_rw [multiset.repeat_succ, multiset.map_cons, ih]
-
-
-
+noncomputable theory
 
 ---- SHANNON ENTROPY 
-
 /-
 Definition: Shannon entropy. 
 -/
@@ -29,11 +28,14 @@ def Shannon_entropy (X : multiset ℝ) : ℝ
 def Shannon_entropy' {α : Type} (X : random_variable α) : ℝ
 := - (list.map (λ (e : event α), e.probability * real.log(e.probability)) X.events).sum
 
+def Shannon_entropy'' (s : finset ι) (X : ι → ℝ) (hX₁ : ∀ i ∈ s, X i ≥ 0) (hX₂ : ∑ i in s, X i = 1) : ℝ := 
+- ∑ i in s, (X i) * real.log(X i)
+
+@[simp] lemma Shannon_entropy''_def {s : finset ι} {X : ι → ℝ} [hX₁ : ∀ i ∈ s, X i ≥ 0] [hX₂ : ∑ i in s, X i = 1] : 
+Shannon_entropy'' s X hX₁ hX₂ = - ∑ i in s, (X i) * real.log(X i) := rfl
+
 -- def Shannon_entropy'' {α : Type} (X : random_variable α) : ℝ
 -- := - ∑ e ∈ X.events, e.probability * real.log(e.probability)
-
--- def Shannon_entropy (X : finset ℝ) : ℝ
--- := - ∑ x in X, x * real.log(x)
 
 notation `H(`X`)` := Shannon_entropy X
 
@@ -52,6 +54,41 @@ theorem Shannon_entropy_nonneg' {α : Type} :
 begin
     unfold Shannon_entropy',
     sorry
+end
+
+lemma Xᵢ_le_1 (s : finset ι) (X : ι → ℝ) (hX₁ : ∀ i ∈ s, X i ≥ 0) (hX₂ : ∑ i in s, X i = 1) : 
+∀ i ∈ s, X i ≤ 1 := 
+begin
+    intros,
+    sorry
+end
+
+theorem Shannon_entropy_nonneg'' : 
+∀ (s : finset ι) (X : ι → ℝ) {hX₁ : ∀ i ∈ s, X i ≥ 0} {hX₂ : ∑ i in s, X i = 1}, 
+Shannon_entropy'' s X hX₁ hX₂ ≥ 0 := 
+begin
+    intros,
+    rw Shannon_entropy''_def,
+    -- move the minus inside
+    simp only [← mul_neg_eq_neg_mul_symm, ← finset.sum_neg_distrib],
+    -- each term in the sum is nonnegative
+    have H2 : ∀ i ∈ s, - (X i) * real.log(X i) ≥ 0, {
+        intros,
+        have h : - (X i) * real.log(X i) = (X i) * (- real.log(X i)), by linarith,
+        rw h,
+        apply mul_nonneg,
+        {exact hX₁ i H},
+        {
+            rw neg_nonneg,
+            apply real.log_nonpos,
+            {exact hX₁ i H},
+            {exact Xᵢ_le_1 s X hX₁ hX₂ i H},
+        },
+    },
+    -- so we have that the whole sum is nonneg
+    apply finset.sum_nonneg,
+    simp only [neg_mul_eq_neg_mul_symm, ge_iff_le, mul_neg_eq_neg_mul_symm, neg_nonneg] at *,
+    exact H2,
 end
 
 /-
@@ -383,4 +420,18 @@ begin
     simp [myFunc, multiset.repeat],
 end
 
+/-
+State and prove the previous theorem using the indexing set 
+from linear algebra.
+-/
+
+variables (hs : s.card = n)
+
+include hs hu
+example : ∑ i in s, u i = 1 := 
+begin
+    exact hu,
+end
+
 --------------------------------
+
