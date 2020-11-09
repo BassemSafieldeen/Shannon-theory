@@ -121,7 +121,16 @@ random_variable (α × α) :=
     begin
         simp,
         unfold of_indpndt_events,
-        
+        /-
+        α : Type,
+        X Y : random_variable α
+        ⊢ (list.map
+            (event.probability ∘
+                λ (x : event α × event α),
+                    {outcome := (x.fst.outcome, x.snd.outcome), probability := x.fst.probability * x.snd.probability})
+            (X.events.product Y.events)).sum =
+            1
+        -/
         sorry,
     end,
 }

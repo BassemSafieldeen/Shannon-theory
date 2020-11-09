@@ -10,3 +10,4 @@ structure FSMC : Type :=
 def B_alpha : FSMC := sorry
 
 def B_alpha' : FSMC := sorry
+
