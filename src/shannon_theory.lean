@@ -5,56 +5,25 @@ import data.list.basic
 import analysis.special_functions.exp_log
 import probability_theory
 
+---- SHANNON ENTROPY 
 
-open_locale big_operators
-
+open_locale big_operators  -- this enables the notation
 
 universe x
 
-variable {ι : Type x} -- indexing type
-variables {n : ℕ} (s : finset ι) {X : ι → ℝ} {hX : ∑ i in s, X i = 1} -- discrete probability distribution
-
--- open_locale big_operators -- this enables the notation
+variables 
+{ι : Type x} (s : finset ι) -- indexing type and indexing set
+{X : ι → ℝ} {hX₁ : ∀ i ∈ s, X i ≥ 0} {hX₂ : ∑ i in s, X i = 1} -- discrete probability distribution
 
 noncomputable theory
 
----- SHANNON ENTROPY 
-/-
+/--
 Definition: Shannon entropy. 
 -/
-def Shannon_entropy (X : multiset ℝ) : ℝ
-:= - (multiset.map (λ (x : ℝ), x * real.log(x)) X).sum
-
-def Shannon_entropy' {α : Type} (X : random_variable α) : ℝ
-:= - (list.map (λ (e : event α), e.probability * real.log(e.probability)) X.events).sum
-
-def Shannon_entropy'' (s : finset ι) (X : ι → ℝ) (hX₁ : ∀ i ∈ s, X i ≥ 0) (hX₂ : ∑ i in s, X i = 1) : ℝ := 
+def Shannon_entropy (s : finset ι) (X : ι → ℝ) (hX₁ : ∀ i ∈ s, X i ≥ 0) (hX₂ : ∑ i in s, X i = 1) : ℝ := 
 - ∑ i in s, (X i) * real.log(X i)
 
-@[simp] lemma Shannon_entropy''_def {s : finset ι} {X : ι → ℝ} [hX₁ : ∀ i ∈ s, X i ≥ 0] [hX₂ : ∑ i in s, X i = 1] : 
-Shannon_entropy'' s X hX₁ hX₂ = - ∑ i in s, (X i) * real.log(X i) := rfl
-
--- def Shannon_entropy'' {α : Type} (X : random_variable α) : ℝ
--- := - ∑ e ∈ X.events, e.probability * real.log(e.probability)
-
-notation `H(`X`)` := Shannon_entropy X
-
-/-
-Theorem (non-negativity): Shannon entropy is non-negative for 
-any random variable.
--/
-theorem Shannon_entropy_nonneg : 
-∀ (X : multiset ℝ), Shannon_entropy(X) ≥ 0 := 
-begin
-    sorry
-end
-
-theorem Shannon_entropy_nonneg' {α : Type} : 
-∀ (X : random_variable α), Shannon_entropy'(X) ≥ 0 := 
-begin
-    unfold Shannon_entropy',
-    sorry
-end
+-- notation `H(`X`)` := Shannon_entropy X
 
 lemma Xᵢ_le_1 (s : finset ι) (X : ι → ℝ) (hX₁ : ∀ i ∈ s, X i ≥ 0) (hX₂ : ∑ i in s, X i = 1) : 
 ∀ i ∈ s, X i ≤ 1 := 
@@ -63,12 +32,16 @@ begin
     sorry
 end
 
-theorem Shannon_entropy_nonneg'' : 
+/--
+Theorem (non-negativity): Shannon entropy is non-negative for 
+any random variable.
+-/
+theorem Shannon_entropy_nonneg : 
 ∀ (s : finset ι) (X : ι → ℝ) {hX₁ : ∀ i ∈ s, X i ≥ 0} {hX₂ : ∑ i in s, X i = 1}, 
-Shannon_entropy'' s X hX₁ hX₂ ≥ 0 := 
+Shannon_entropy s X hX₁ hX₂ ≥ 0 := 
 begin
     intros,
-    rw Shannon_entropy''_def,
+    rw Shannon_entropy,
     -- move the minus inside
     simp only [← mul_neg_eq_neg_mul_symm, ← finset.sum_neg_distrib],
     -- each term in the sum is nonnegative
@@ -151,6 +124,19 @@ begin
     exact hX,
 end
 
+theorem Shnn_entropy_uniform_rdm_var' (s : finset ι) (X : ι → ℝ) {hX₁ : ∀ i ∈ s, X i ≥ 0} {hX₂ : ∑ i in s, X i = 1} : 
+(∀ i ∈ s, X i = 1 / s.card) → Shannon_entropy s X hX₁ hX₂ = real.log(s.card)
+:=
+begin
+    intro hX₃,
+    rw Shannon_entropy,
+    have : -∑ i in s, X i * real.log (X i) = ∑ i in s, X i * real.log (1 / (X i)) ,
+        by simp only [one_div, real.log_inv, mul_neg_eq_neg_mul_symm, finset.sum_neg_distrib],
+    rw this,
+    clear this,
+    -- we need to subsitute 1 / s.card for  (X i).
+    sorry
+end
 
 
 
