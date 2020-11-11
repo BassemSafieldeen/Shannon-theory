@@ -1,9 +1,8 @@
 import algebra.big_operators
 import linear_algebra.basic
-import data.real.basic
-import data.list.basic
 import analysis.special_functions.exp_log
-import probability_theory
+
+import rnd_var
 
 ---- SHANNON ENTROPY 
 
