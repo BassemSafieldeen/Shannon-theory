@@ -31,6 +31,9 @@ begin
     sorry
 end
 
+#check hX₁
+#check rnd_var.probs_nonneg
+
 /--
 Theorem (non-negativity): Shannon entropy is non-negative for 
 any random variable.
@@ -63,10 +66,16 @@ begin
     exact H2,
 end
 
-/-
+section
+open_locale classical
+
+/--
 Definition (deterministic random variable): 
 -/
-def is_deterministic (s : finset ι) (X : ι → ℝ) {hX₁ : ∀ i ∈ s, X i ≥ 0} {hX₂ : ∑ i in s, X i = 1} : Prop := sorry
+def is_deterministic (s : finset ι) (X : ι → ℝ) (hX₁ : ∀ i ∈ s, X i ≥ 0) (hX₂ : ∑ i in s, X i = 1) : Prop := 
+∃ j ∈ s, ∀ i ∈ s, if (i = j) then (X i = 1) else (X i = 0)  
+
+end
 
 /--
 Theorem (Minimum value): Shannon entropy vanishes if and only if 
@@ -75,7 +84,8 @@ X is a deterministic variable.
 This is property 10.1.4 here (https://arxiv.org/pdf/1106.1445.pdf)
 -/
 theorem Shannon_entropy_minimum_value : 
-∀ (X : multiset ℝ), Shannon_entropy(X) = 0 ↔ is_deterministic X :=
+∀ (s : finset ι) (X : ι → ℝ) {hX₁ : ∀ i ∈ s, X i ≥ 0} {hX₂ : ∑ i in s, X i = 1}, 
+Shannon_entropy s X hX₁ hX₂ = 0 ↔ is_deterministic s X hX₁ hX₂ :=
 begin
     sorry
 end
@@ -86,15 +96,15 @@ whose  probabilities are equal to 1/n, where n
 is the number of symbols that the random variable 
 can assume.
 -/
-def is_uniform_rnd_var (X : multiset ℝ) : Prop :=
-X = multiset.repeat (1/X.card) X.card
+def is_uniform (s : finset ι) (X : ι → ℝ) (hX₁ : ∀ i ∈ s, X i ≥ 0) (hX₂ : ∑ i in s, X i = 1) : Prop :=
+(∀ i ∈ s, X i = 1 / s.card)
 
 /--
 Theorem: The Shannon entropy of a uniform 
 random variable is log(n).
 -/
 theorem Shnn_entropy_uniform_rdm_var (s : finset ι) (X : ι → ℝ) {hX₁ : ∀ i ∈ s, X i ≥ 0} {hX₂ : ∑ i in s, X i = 1} : 
-(∀ i ∈ s, X i = 1 / s.card) → Shannon_entropy s X hX₁ hX₂ = real.log(s.card)
+is_uniform s X hX₁ hX₂ → Shannon_entropy s X hX₁ hX₂ = real.log(s.card)
 :=
 begin
     intro hX₃,
@@ -103,6 +113,7 @@ begin
         by simp only [one_div, real.log_inv, mul_neg_eq_neg_mul_symm, finset.sum_neg_distrib],
     rw this,
     clear this,
+    rw is_uniform at hX₃,
     -- we need to subsitute 1 / s.card for  (X i).
     sorry
 end
