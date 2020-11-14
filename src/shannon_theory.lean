@@ -63,11 +63,11 @@ X is a deterministic variable.
 
 This is property 10.1.4 here (https://arxiv.org/pdf/1106.1445.pdf)
 -/
-theorem Shannon_entropy_minimum_value (X : ι → ℝ) [rnd_var X] : 
+theorem Shannon_entropy_zero_iff_deterministic (X : ι → ℝ) [rnd_var X] : 
 Shannon_entropy X = 0 ↔ is_deterministic X :=
 begin
     -- we begin by asking Lean to provide the meanings of the 
-    -- words we've taught it.
+    -- words we've taught it. We use the rewrite tactic for that.
     rw [is_deterministic, Shannon_entropy],
     -- We split the two directions of the iff.
     split,
@@ -79,6 +79,7 @@ begin
     {
         -- we prove the other
         intro H,
+        cases H with j hj,
         sorry
     },
 end
@@ -87,7 +88,7 @@ end
 Theorem: The Shannon entropy of a uniform 
 random variable is log(n).
 -/
-theorem Shnn_entropy_uniform_rdm_var (X : ι → ℝ) [rnd_var X] : 
+theorem Shannon_entropy_of_uniform (X : ι → ℝ) [rnd_var X] : 
 is_uniform X → Shannon_entropy X = real.log(fintype.card ι) :=
 begin
     intro hX,
