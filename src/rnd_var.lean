@@ -13,7 +13,7 @@ class rnd_var {ι : Type x} (s : finset ι) (X : ι → ℝ) :=
 
 variables {ι : Type x} {s : finset ι} {X : ι → ℝ} [rnd_var s X]
 
-lemma probs_le_1 {s : finset ι} {X : ι → ℝ} [rnd_var s X] : 
+lemma probs_le_one {s : finset ι} {X : ι → ℝ} [rnd_var s X] : 
 ∀ i ∈ s, X i ≤ 1 := 
 begin
     intros,

@@ -46,7 +46,7 @@ begin
             rw neg_nonneg,
             apply real.log_nonpos,
             {apply probs_nonneg i H, assumption},
-            {exact probs_le_1 i H},
+            {exact probs_le_one i H},
         },
     },
     -- so we have that the whole sum is nonneg
