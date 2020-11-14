@@ -39,4 +39,4 @@ whose  probabilities are equal to 1/n, where n
 is the number of symbols that the random variable 
 can assume.
 -/
-def is_uniform := (∀ i, X i = 1 / fintype.card ι)
+def is_uniform := ∀ i, X i = 1 / fintype.card ι
