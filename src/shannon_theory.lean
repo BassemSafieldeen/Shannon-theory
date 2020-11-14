@@ -10,37 +10,24 @@ open_locale big_operators  -- this enables the notation
 
 universe x
 
-variables 
-{ι : Type x} (s : finset ι) -- indexing type and indexing set
-{X : ι → ℝ} {hX₁ : ∀ i ∈ s, X i ≥ 0} {hX₂ : ∑ i in s, X i = 1} -- discrete probability distribution
+variables {ι : Type x} -- indexing type
 
 noncomputable theory
 
 /--
 Definition: Shannon entropy. 
 -/
-def Shannon_entropy (s : finset ι) (X : ι → ℝ) (hX₁ : ∀ i ∈ s, X i ≥ 0) (hX₂ : ∑ i in s, X i = 1) : ℝ := 
+def Shannon_entropy (s : finset ι) (X : ι → ℝ) [rnd_var s X] : ℝ := 
 - ∑ i in s, (X i) * real.log(X i)
 
 -- notation `H(`X`)` := Shannon_entropy X
-
-lemma Xᵢ_le_1 (s : finset ι) (X : ι → ℝ) (hX₁ : ∀ i ∈ s, X i ≥ 0) (hX₂ : ∑ i in s, X i = 1) : 
-∀ i ∈ s, X i ≤ 1 := 
-begin
-    intros,
-    sorry
-end
-
-#check hX₁
-#check rnd_var.probs_nonneg
 
 /--
 Theorem (non-negativity): Shannon entropy is non-negative for 
 any random variable.
 -/
-theorem Shannon_entropy_nonneg : 
-∀ (s : finset ι) (X : ι → ℝ) {hX₁ : ∀ i ∈ s, X i ≥ 0} {hX₂ : ∑ i in s, X i = 1}, 
-Shannon_entropy s X hX₁ hX₂ ≥ 0 := 
+theorem Shannon_entropy_nonneg (s : finset ι) (X : ι → ℝ) [rnd_var s X] : 
+Shannon_entropy s X ≥ 0 := 
 begin
     intros,
     rw Shannon_entropy,
@@ -52,12 +39,18 @@ begin
         have h : - (X i) * real.log(X i) = (X i) * (- real.log(X i)), by linarith,
         rw h,
         apply mul_nonneg,
-        {exact hX₁ i H},
+        {   
+            apply probs_nonneg_of_rnd_var i H,
+            assumption,
+        },
         {
             rw neg_nonneg,
             apply real.log_nonpos,
-            {exact hX₁ i H},
-            {exact Xᵢ_le_1 s X hX₁ hX₂ i H},
+            {
+                apply probs_nonneg_of_rnd_var i H,
+                assumption,
+            },
+            {exact Xᵢ_le_1 i H},
         },
     },
     -- so we have that the whole sum is nonneg
@@ -72,7 +65,7 @@ open_locale classical
 /--
 Definition (deterministic random variable): 
 -/
-def is_deterministic (s : finset ι) (X : ι → ℝ) (hX₁ : ∀ i ∈ s, X i ≥ 0) (hX₂ : ∑ i in s, X i = 1) : Prop := 
+def is_deterministic (s : finset ι) (X : ι → ℝ) [rnd_var s X] : Prop := 
 ∃ j ∈ s, ∀ i ∈ s, if (i = j) then (X i = 1) else (X i = 0)  
 
 end
@@ -83,9 +76,8 @@ X is a deterministic variable.
 
 This is property 10.1.4 here (https://arxiv.org/pdf/1106.1445.pdf)
 -/
-theorem Shannon_entropy_minimum_value : 
-∀ (s : finset ι) (X : ι → ℝ) {hX₁ : ∀ i ∈ s, X i ≥ 0} {hX₂ : ∑ i in s, X i = 1}, 
-Shannon_entropy s X hX₁ hX₂ = 0 ↔ is_deterministic s X hX₁ hX₂ :=
+theorem Shannon_entropy_minimum_value (s : finset ι) (X : ι → ℝ) [rnd_var s X] : 
+Shannon_entropy s X = 0 ↔ is_deterministic s X :=
 begin
     sorry
 end
@@ -96,15 +88,15 @@ whose  probabilities are equal to 1/n, where n
 is the number of symbols that the random variable 
 can assume.
 -/
-def is_uniform (s : finset ι) (X : ι → ℝ) (hX₁ : ∀ i ∈ s, X i ≥ 0) (hX₂ : ∑ i in s, X i = 1) : Prop :=
+def is_uniform (s : finset ι) (X : ι → ℝ) [rnd_var s X] : Prop :=
 (∀ i ∈ s, X i = 1 / s.card)
 
 /--
 Theorem: The Shannon entropy of a uniform 
 random variable is log(n).
 -/
-theorem Shnn_entropy_uniform_rdm_var (s : finset ι) (X : ι → ℝ) {hX₁ : ∀ i ∈ s, X i ≥ 0} {hX₂ : ∑ i in s, X i = 1} : 
-is_uniform s X hX₁ hX₂ → Shannon_entropy s X hX₁ hX₂ = real.log(s.card)
+theorem Shnn_entropy_uniform_rdm_var (s : finset ι) (X : ι → ℝ) [rnd_var s X] : 
+is_uniform s X → Shannon_entropy s X = real.log(s.card)
 :=
 begin
     intro hX₃,
