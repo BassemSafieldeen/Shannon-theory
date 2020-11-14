@@ -13,15 +13,29 @@ class rnd_var {ι : Type x} (s : finset ι) (X : ι → ℝ) :=
 
 variables {ι : Type x} {s : finset ι} {X : ι → ℝ} [rnd_var s X]
 
-lemma Xᵢ_le_1 {s : finset ι} {X : ι → ℝ} [rnd_var s X] : 
+lemma probs_le_1 {s : finset ι} {X : ι → ℝ} [rnd_var s X] : 
 ∀ i ∈ s, X i ≤ 1 := 
 begin
     intros,
     sorry
 end
 
-theorem probs_nonneg_of_rnd_var : ∀ i ∈ s, X i ≥ 0 := 
-begin
-    intros,
-    exact rnd_var.probs_nonneg i H,
+section
+open_locale classical
+
+/--
+Definition (deterministic random variable): 
+-/
+def is_deterministic (s : finset ι) (X : ι → ℝ) [rnd_var s X] : Prop := 
+∃ j ∈ s, ∀ i ∈ s, if (i = j) then (X i = 1) else (X i = 0)  
+
 end
+
+/--
+Definition (uniform random variable): a random variable
+whose  probabilities are equal to 1/n, where n 
+is the number of symbols that the random variable 
+can assume.
+-/
+def is_uniform (s : finset ι) (X : ι → ℝ) [rnd_var s X] : Prop :=
+(∀ i ∈ s, X i = 1 / s.card)
