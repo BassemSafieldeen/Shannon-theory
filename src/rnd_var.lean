@@ -21,7 +21,7 @@ begin
     sorry
 end
 
-variable (X) -- Tell Lean to explicitly as for X in what follows.
+variable (X) -- Tell Lean to explicitly ask for X in what follows.
 
 section
 open_locale classical
