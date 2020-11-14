@@ -77,7 +77,7 @@ begin
         sorry
     },
     {
-        -- we prove the other
+        -- we prove the other direction
         intro H,
         cases H with j hj,
         sorry
