@@ -1,5 +1,4 @@
 import algebra.big_operators
-import linear_algebra.basic
 import analysis.special_functions.exp_log
 
 import rnd_var
@@ -28,7 +27,7 @@ def Shannon_entropy (X : ι → ℝ) [rnd_var X] : ℝ :=
 
 /--
 Theorem (non-negativity): Shannon entropy is non-negative for 
-any random variable.
+any discrete random variable.
 -/
 theorem Shannon_entropy_nonneg (X : ι → ℝ) [rnd_var X] : 
 Shannon_entropy X ≥ 0 := 
@@ -54,7 +53,6 @@ begin
     -- so we have that the whole sum is nonneg
     apply sum_nonneg,
     simp only [neg_mul_eq_neg_mul_symm, ge_iff_le, mul_neg_eq_neg_mul_symm, neg_nonneg] at *,
-    -- exact H2,
     intros i hi,
     exact H2 i,
 end
@@ -68,7 +66,21 @@ This is property 10.1.4 here (https://arxiv.org/pdf/1106.1445.pdf)
 theorem Shannon_entropy_minimum_value (X : ι → ℝ) [rnd_var X] : 
 Shannon_entropy X = 0 ↔ is_deterministic X :=
 begin
-    sorry
+    -- we begin by asking Lean to provide the meanings of the 
+    -- words we've taught it.
+    rw [is_deterministic, Shannon_entropy],
+    -- We split the two directions of the iff.
+    split,
+    {
+        -- we prove one direction
+        intro H,
+        sorry
+    },
+    {
+        -- we prove the other
+        intro H,
+        sorry
+    },
 end
 
 /--
