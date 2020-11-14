@@ -12,7 +12,9 @@ open_locale big_operators  -- this enables the notation
 
 universe x
 
-variables {ι : Type x} [fintype ι] -- indexing type
+variables 
+{ι : Type x} -- indexing type
+[fintype ι] -- tell Lean that the set of all elements ι is finite.
 
 noncomputable theory
 
