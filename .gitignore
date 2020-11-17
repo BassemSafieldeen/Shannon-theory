@@ -1,5 +1,5 @@
 *.olean
 /_target
 src/cond_entropy.lean
-src/mut_info.lean
 src/chain_rule.lean
+src/probability_theory.lean
