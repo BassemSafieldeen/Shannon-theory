@@ -58,6 +58,10 @@ begin
 end
 
 /--
+def delta i j
+-/
+
+/--
 Theorem (Minimum value): Shannon entropy vanishes if and only if 
 X is a deterministic variable.
 
@@ -73,13 +77,42 @@ begin
     split,
     {
         -- we prove one direction
-        intro H,
-        sorry
+        intro Hm,
+        -- remove the minus sign
+        have H : ∑ (i : ι), X i * real.log(X i) = 0,
+        { linarith, },
+        -- show that each term must be zero
+        -- this has to be a lemma already: sum_of_nonneg_eq_zero or something
+        have H' : ∀ (i : ι), X i * real.log(X i) = 0,
+        { sorry, },
+        -- since each term is a product, at least one of the factors must be zero
+        have H'' : ∀ (i : ι), (X i = 0) ∨ (real.log(X i) = 0),
+        { intros,
+          specialize H' i,
+          exact eq_zero_or_eq_zero_of_mul_eq_zero H', },
+        -- stuck here with
+        -- H'' : ∀ (i : ι), X i = 0 ∨ real.log (X i) = 0
+        -- goal : ∃ (j : ι), ∀ (i : ι), ite (i = j) (X i = 1) (X i = 0)
+        -- I feel like I want to do case analysis on i because the two terms in H''
+        -- exactly match the if/else condition in the goal, but I don't know how to state it
+        have helper : ∀ (r : ℝ), real.log(r) = 0 → r = 1, {rw real.log_one, }, -- Yeah!
+        have H''' : ∀ (i : ι), X i = 0 ∨ X i = 1, {sorry},
+        -- Hmmm, and now it should be easy but I don't know the syntax.
+        -- Let me ask around and tell you in the next session.
+        sorry,
     },
     {
         -- we prove the other direction
         intro H,
         cases H with j hj,
+        calc -∑ (i : ι), (X i) * real.log(X i)         : {by rw is_deterministic}
+        -- I think it'd make sense to define the delta to make notation clearer
+        -- otherwise the definition of a deterministic random variable contains an existential quantifier that I don't know how to handle. Will look into it tonight.
+        -- I also feel we need the use tactic at some point, because otherwise the variable j is going to be undefined
+        -- So we can set e.g. j=0 and show it works in that case and we're done
+        ... = -∑ (i : ι), (δ i j) * real.log(δ i j)      : {by rw kronecker_delta}
+        ... = -∑ (i : ι), (if (i = j) then (1*real.log(1)) else (0*real.log(0)))     : {}
+        ... = 0
         sorry
     },
 end
