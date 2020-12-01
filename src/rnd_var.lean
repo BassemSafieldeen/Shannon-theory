@@ -23,8 +23,15 @@ end
 
 variable (X) -- Tell Lean to explicitly ask for X in what follows.
 
+noncomputable theory
+
 section
 open_locale classical
+
+/--
+Kronecker delta: 
+-/
+def delta (i : ι) (j : ι) : ℝ := if (i = j) then 1 else 0
 
 /--
 Definition (deterministic random variable): 
