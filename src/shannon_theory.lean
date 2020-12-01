@@ -71,6 +71,10 @@ begin
 end
 
 /--
+def delta i j
+-/
+
+/--
 Theorem (Minimum value): Shannon entropy vanishes if and only if 
 X is a deterministic variable.
 
@@ -155,9 +159,9 @@ begin
     have H : - ∑ i, X i * real.log (X i) = ∑ i, X i * real.log (1 / (X i)) ,
         by simp only [one_div, real.log_inv, mul_neg_eq_neg_mul_symm, sum_neg_distrib],
     unfold is_uniform at hX,
-    have hX2 : ∀ i : ι, 1 / (X i) = fintype.card ι, {sorry},
-    have hX3 : ∀ i : ι, (X i) * real.log(1 / (X i)) = (1 / fintype.card ι) * real.log(fintype.card ι), {sorry},
-    rw hX2 at H,
+    -- have hX2 : ∀ i : ι, 1 / (X i) = fintype.card ι, {sorry},
+    -- have hX3 : ∀ i : ι, (X i) * real.log(1 / (X i)) = (1 / fintype.card ι) * real.log(fintype.card ι), {sorry},
+    -- rw hX2 at H,
     -- rw is_uniform at hX,
     -- we need to subsitute 1 / fintype.card ι for (X i).
     sorry
