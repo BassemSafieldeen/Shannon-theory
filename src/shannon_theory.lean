@@ -1,4 +1,5 @@
 import algebra.big_operators
+import algebra.big_operators.order.finset
 import analysis.special_functions.exp_log
 
 import rnd_var
@@ -16,6 +17,8 @@ variables
 [fintype ι] -- tell Lean that the set of all elements ι is finite.
 
 noncomputable theory
+
+def delta (i : ι) (j : ι) : ℝ := if i=j then 1 else 0
 
 /--
 Definition: Shannon entropy. 
@@ -57,6 +60,16 @@ begin
     exact H2 i,
 end
 
+lemma sum_nonneg_zero {f : ι → ℝ} (h : ∑ (i : ι), f i = 0) (h': ∀ i : ι, 0 ≤ f i) : ∀ i : ι, f i = 0 :=
+begin
+    intro i,
+    specialize h' i,
+    -- split h' into branches f i = 0 and f i > 0
+    -- first one follows from sum_const_zero
+    -- second one leads to contradiction, so `exfalso` + something
+    sorry,
+end
+
 /--
 Theorem (Minimum value): Shannon entropy vanishes if and only if 
 X is a deterministic variable.
@@ -73,13 +86,59 @@ begin
     split,
     {
         -- we prove one direction
-        intro H,
-        sorry
+        intro H0,
+        -- rewrite in a more convenient form
+        have H1: ∑ (i : ι), X i * real.log ((X i)⁻¹) = 0,
+        {
+            simp only [← real.log_inv, ← mul_neg_eq_neg_mul_symm, ← sum_neg_distrib] at H0,
+            exact H0,
+        },
+        -- show each term in the sum must be zero
+        have H2 : ∀ (i : ι), (X i) * real.log((X i)⁻¹) = 0,
+        {
+            apply sum_nonneg_zero, -- TODO
+            exact H1,
+            intro i,
+            -- TODO: this is defined in rnd_var but idk how to import it
+            have prob_nonneg : 0 ≤ X i, {sorry},
+            -- TODO: use X i ≤ 1 and rw
+            have log_nonneg : 0 ≤ real.log((X i)⁻¹), {sorry},
+            rw mul_nonneg_iff,
+            left,
+            split, {exact prob_nonneg,}, {exact log_nonneg,},
+        },
+        -- if the product is zero then one of the factors must be zero
+        have H3 : ∀ (i : ι), (X i = 0) ∨ (real.log((X i)⁻¹) = 0),
+        {
+            intros i,
+            specialize H2 i,
+            rw mul_eq_zero at H2,
+            exact H2,
+        },
+        have H4 : ∀ (i : ι), (X i = 0) ∨ (X i = 1),
+        -- TODO: use log injective and real.log_one
+        have helper : ∀ (r : ℝ), real.log(r) = 0 → r = 1, {sorry,},
+        -- TODO: use inv_of_one somehow
+        have helper2 : ∀ (r : ℝ), r⁻¹ = 1 → r = 1, {sorry,},
+        {
+            intros i,
+            specialize H3 i,
+            cases H3 with l r,
+            left,
+            exact l,
+            right,
+            specialize helper (X i)⁻¹,
+            specialize helper2 (X i),
+            apply helper2,
+            apply helper,
+            exact r,
+        },
+        sorry,
     },
     {
         -- we prove the other direction
-        intro H,
-        cases H with j hj,
+        intro h,
+        cases h with j hj,
         sorry
     },
 end
@@ -93,9 +152,13 @@ is_uniform X → Shannon_entropy X = real.log(fintype.card ι) :=
 begin
     intro hX,
     rw Shannon_entropy,
-    have : - ∑ i, X i * real.log (X i) = ∑ i, X i * real.log (1 / (X i)) ,
+    have H : - ∑ i, X i * real.log (X i) = ∑ i, X i * real.log (1 / (X i)) ,
         by simp only [one_div, real.log_inv, mul_neg_eq_neg_mul_symm, sum_neg_distrib],
-    rw is_uniform at hX,
+    unfold is_uniform at hX,
+    have hX2 : ∀ i : ι, 1 / (X i) = fintype.card ι, {sorry},
+    have hX3 : ∀ i : ι, (X i) * real.log(1 / (X i)) = (1 / fintype.card ι) * real.log(fintype.card ι), {sorry},
+    rw hX2 at H,
+    -- rw is_uniform at hX,
     -- we need to subsitute 1 / fintype.card ι for (X i).
     sorry
 end
