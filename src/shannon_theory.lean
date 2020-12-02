@@ -1,5 +1,4 @@
 import algebra.big_operators
-import algebra.big_operators.order.finset
 import analysis.special_functions.exp_log
 
 import rnd_var
@@ -70,9 +69,11 @@ begin
     sorry,
 end
 
-/--
-def delta i j
--/
+lemma helper : ∀ (r : ℝ), real.log(r) = 0 → r = 1 := sorry
+
+lemma helper2 : ∀ (r : ℝ), r⁻¹ = 1 → r = 1 := by exact λ {g : ℝ}, inv_eq_one'.mp
+
+lemma log_nonneg : ∀ (r : ℝ), r ≤ 1 → 0 ≤ real.log(r⁻¹) := sorry
 
 /--
 Theorem (Minimum value): Shannon entropy vanishes if and only if 
@@ -103,13 +104,9 @@ begin
             apply sum_nonneg_zero, -- TODO
             exact H1,
             intro i,
-            -- TODO: this is defined in rnd_var but idk how to import it
-            have prob_nonneg : 0 ≤ X i, {sorry},
-            -- TODO: use X i ≤ 1 and rw
-            have log_nonneg : 0 ≤ real.log((X i)⁻¹), {sorry},
             rw mul_nonneg_iff,
             left,
-            split, {exact prob_nonneg,}, {exact log_nonneg,},
+            split, {apply probs_nonneg,}, {apply log_nonneg, apply probs_le_one,},
         },
         -- if the product is zero then one of the factors must be zero
         have H3 : ∀ (i : ι), (X i = 0) ∨ (real.log((X i)⁻¹) = 0),
@@ -120,10 +117,6 @@ begin
             exact H2,
         },
         have H4 : ∀ (i : ι), (X i = 0) ∨ (X i = 1),
-        -- TODO: use log injective and real.log_one
-        have helper : ∀ (r : ℝ), real.log(r) = 0 → r = 1, {sorry,},
-        -- TODO: use inv_of_one somehow
-        have helper2 : ∀ (r : ℝ), r⁻¹ = 1 → r = 1, {sorry,},
         {
             intros i,
             specialize H3 i,
@@ -131,8 +124,8 @@ begin
             left,
             exact l,
             right,
-            specialize helper (X i)⁻¹,
-            specialize helper2 (X i),
+            -- specialize helper (X i)⁻¹,
+            -- specialize helper2 (X i),
             apply helper2,
             apply helper,
             exact r,
