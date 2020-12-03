@@ -46,7 +46,7 @@ end
 foo
 -/
 lemma
-deterministic_zero_or_one (X : ι → ℝ) [rnd_var X] : is_deterministic_ X → ∀ i, X i = 0 ∨ X i = 1 :=
+deterministic_zero_or_one (X : ι → ℝ) [rnd_var X] : is_deterministic X → ∀ i, X i = 0 ∨ X i = 1 :=
 begin
     intros h i,
     unfold is_deterministic_ at h,
