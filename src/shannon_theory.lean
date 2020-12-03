@@ -1,5 +1,4 @@
 import algebra.big_operators
-import algebra.big_operators.order.finset
 import analysis.special_functions.exp_log
 
 import rnd_var
@@ -17,6 +16,8 @@ variables
 [fintype ι] -- tell Lean that the set of all elements ι is finite.
 
 noncomputable theory
+
+-- def delta (i : ι) (j : ι) [decidable_eq ι] : ℝ := if i=j then 1 else 0
 
 /--
 Definition: Shannon entropy. 
@@ -68,13 +69,36 @@ begin
     sorry,
 end
 
+lemma helper : ∀ (r : ℝ), real.log(r) = 0 → r = 1 := sorry
+
+lemma helper1 : ∀ (r : ℝ), r = 1 → real.log(r) = 0 := sorry
+
+lemma helper2 : ∀ (r : ℝ), r⁻¹ = 1 → r = 1 := by exact λ {g : ℝ}, inv_eq_one'.mp
+
+lemma log_nonneg : ∀ (r : ℝ), r ≤ 1 → 0 ≤ real.log(r⁻¹) := sorry
+
+lemma helper3 (X : ι → ℝ) (hX : ∑ i, X i = 1) [decidable_eq ι] : 
+∀ i, X i = 0 ∨ X i = 1 → (∃ j, ∀ i, if (i = j) then (X i = 1) else (X i = 0)) := 
+begin
+    sorry,
+end
+
+lemma helper4 (X : ι → ℝ) : 
+(∀ (i : ι), X i = 0 ∨ X i = 1) → (∀ (i : ι), X i = 0 ∨ real.log(X i) = 0) := sorry
+
+lemma helper5 {X : ι → ℝ} [decidable_eq ι] : 
+(∃ j, ∀ i, ite (i = j) (X i = 1) (X i = 0)) → (∀ i, X i = 0 ∨ X i = 1) := 
+begin
+    sorry
+end
+
 /--
 Theorem (Minimum value): Shannon entropy vanishes if and only if 
 X is a deterministic variable.
 
 This is property 10.1.4 here (https://arxiv.org/pdf/1106.1445.pdf)
 -/
-theorem Shannon_entropy_zero_iff_deterministic (X : ι → ℝ) [rnd_var X] : 
+theorem Shannon_entropy_zero_iff_deterministic (X : ι → ℝ) [rnd_var X] [decidable_eq ι] : 
 Shannon_entropy X = 0 ↔ is_deterministic X :=
 begin
     -- we begin by asking Lean to provide the meanings of the 
@@ -97,13 +121,9 @@ begin
             apply sum_nonneg_zero, -- TODO
             exact H1,
             intro i,
-            -- TODO: this is defined in rnd_var but idk how to import it
-            have prob_nonneg : 0 ≤ X i, {sorry},
-            -- TODO: use X i ≤ 1 and rw
-            have log_nonneg : 0 ≤ real.log((X i)⁻¹), {sorry},
             rw mul_nonneg_iff,
             left,
-            split, {exact prob_nonneg,}, {exact log_nonneg,},
+            split, {apply probs_nonneg,}, {apply log_nonneg, apply probs_le_one,},
         },
         -- if the product is zero then one of the factors must be zero
         have H3 : ∀ (i : ι), (X i = 0) ∨ (real.log((X i)⁻¹) = 0),
@@ -114,10 +134,6 @@ begin
             exact H2,
         },
         have H4 : ∀ (i : ι), (X i = 0) ∨ (X i = 1),
-        -- TODO: use log injective and real.log_one
-        have helper : ∀ (r : ℝ), real.log(r) = 0 → r = 1, {sorry,},
-        -- TODO: use inv_of_one somehow
-        have helper2 : ∀ (r : ℝ), r⁻¹ = 1 → r = 1, {sorry,},
         {
             intros i,
             specialize H3 i,
@@ -125,33 +141,25 @@ begin
             left,
             exact l,
             right,
-            specialize helper (X i)⁻¹,
-            specialize helper2 (X i),
+            -- specialize helper (X i)⁻¹,
+            -- specialize helper2 (X i),
             apply helper2,
             apply helper,
             exact r,
         },
+        -- use helper3?
         sorry,
     },
     {
         -- we prove the other direction
         intro h,
-        have h01 : (∀ i : ι, X i = 0 ∨ X i = 1), {sorry}, -- use lemma zero_or_one_if_delta
-        clear h, -- h01 is enough
-        norm_num, -- remove minus sign in goal
-        have f0 : ∀ i, (X i) * real.log(X i) = 0,
-        {
-            intro i,
-            specialize h01 i,
-            cases h01 with x0 log0,
-            rw x0,
-            linarith,
-            rw log0,
-            rw real.log_one,
-            linarith,
-        },
-        -- exact finset.sum_eq_zero f0, -- it's almost this but not quite, getting type error
-        sorry
+        simp only [← sum_neg_distrib, ← mul_neg_eq_neg_mul_symm, ← real.log_inv],
+        rw sum_eq_zero, norm_num,
+        apply helper4,
+        apply helper5,
+        cases h with j hj,
+        use j,
+        finish,
     },
 end
 
