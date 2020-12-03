@@ -83,10 +83,11 @@ begin
     sorry,
 end
 
-lemma helper4 {r : ℝ} : (r = 0 ∨ r = 1) → (r = 0 ∨ real.log(r) = 0) := sorry
+lemma helper4 (X : ι → ℝ) : 
+(∀ (i : ι), X i = 0 ∨ X i = 1) → (∀ (i : ι), X i = 0 ∨ real.log(X i) = 0) := sorry
 
 lemma helper5 {X : ι → ℝ} {j : ι} [decidable_eq ι] : 
-∀ i, ite (i = j) (X i = 1) (X i = 0) → ∀ i, X i = 0 ∨ X i = 1 := 
+(∀ i, ite (i = j) (X i = 1) (X i = 0)) → (∀ i, X i = 0 ∨ X i = 1) := 
 begin
     sorry
 end
@@ -160,6 +161,9 @@ begin
         intro h,
         simp only [← sum_neg_distrib, ← mul_neg_eq_neg_mul_symm, ← real.log_inv],
         rw sum_eq_zero, norm_num,
+        -- intro i,
+        apply helper4,
+        -- use helper 5?
         sorry
     },
 end
