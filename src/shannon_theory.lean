@@ -98,6 +98,12 @@ begin
     sorry
 end
 
+lemma helper5'' {X : ι → ℝ} [decidable_eq ι] : 
+(∃ j, ∀ i, ite (i = j) (X i = 1) (X i = 0)) → (∀ i, X i = 0 ∨ X i = 1) := 
+begin
+    sorry
+end
+
 /--
 Theorem (Minimum value): Shannon entropy vanishes if and only if 
 X is a deterministic variable.
@@ -164,7 +170,10 @@ begin
         -- intro i,
         apply helper4,
         -- use helper 5?
-        sorry
+        apply helper5'',
+        cases h with j hj,
+        use j,
+        finish,
     },
 end
 
