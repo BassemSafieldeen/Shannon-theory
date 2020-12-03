@@ -17,7 +17,7 @@ variables
 
 noncomputable theory
 
-def delta (i : ι) (j : ι) : ℝ := if i=j then 1 else 0
+-- def delta (i : ι) (j : ι) [decidable_eq ι] : ℝ := if i=j then 1 else 0
 
 /--
 Definition: Shannon entropy. 
@@ -71,9 +71,31 @@ end
 
 lemma helper : ∀ (r : ℝ), real.log(r) = 0 → r = 1 := sorry
 
+lemma helper1 : ∀ (r : ℝ), r = 1 → real.log(r) = 0 := sorry
+
 lemma helper2 : ∀ (r : ℝ), r⁻¹ = 1 → r = 1 := by exact λ {g : ℝ}, inv_eq_one'.mp
 
 lemma log_nonneg : ∀ (r : ℝ), r ≤ 1 → 0 ≤ real.log(r⁻¹) := sorry
+
+lemma helper3 (X : ι → ℝ) (hX : ∑ i, X i = 1) [decidable_eq ι] : 
+∀ i, X i = 0 ∨ X i = 1 → (∃ j, ∀ i, if (i = j) then (X i = 1) else (X i = 0)) := 
+begin
+    sorry,
+end
+
+lemma helper4 {r : ℝ} : (r = 0 ∨ r = 1) → (r = 0 ∨ real.log(r) = 0) := sorry
+
+lemma helper5 {X : ι → ℝ} {j : ι} [decidable_eq ι] : 
+∀ i, ite (i = j) (X i = 1) (X i = 0) → ∀ i, X i = 0 ∨ X i = 1 := 
+begin
+    sorry
+end
+
+lemma helper5' {X : ι → ℝ} [decidable_eq ι] : 
+∀ i, X i = 0 ∨ X i = 1 → ∃ j, ∀ i, ite (i = j) (X i = 1) (X i = 0) := 
+begin
+    sorry
+end
 
 /--
 Theorem (Minimum value): Shannon entropy vanishes if and only if 
@@ -81,7 +103,7 @@ X is a deterministic variable.
 
 This is property 10.1.4 here (https://arxiv.org/pdf/1106.1445.pdf)
 -/
-theorem Shannon_entropy_zero_iff_deterministic (X : ι → ℝ) [rnd_var X] : 
+theorem Shannon_entropy_zero_iff_deterministic (X : ι → ℝ) [rnd_var X] [decidable_eq ι] : 
 Shannon_entropy X = 0 ↔ is_deterministic X :=
 begin
     -- we begin by asking Lean to provide the meanings of the 
@@ -130,12 +152,14 @@ begin
             apply helper,
             exact r,
         },
+        -- use helper3?
         sorry,
     },
     {
         -- we prove the other direction
         intro h,
-        cases h with j hj,
+        simp only [← sum_neg_distrib, ← mul_neg_eq_neg_mul_symm, ← real.log_inv],
+        rw sum_eq_zero, norm_num,
         sorry
     },
 end
