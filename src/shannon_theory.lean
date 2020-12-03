@@ -18,8 +18,6 @@ variables
 
 noncomputable theory
 
-def delta (i : ι) (j : ι) : ℝ := if i=j then 1 else 0
-
 /--
 Definition: Shannon entropy. 
 -/
@@ -69,10 +67,6 @@ begin
     -- second one leads to contradiction, so `exfalso` + something
     sorry,
 end
-
-/--
-def delta i j
--/
 
 /--
 Theorem (Minimum value): Shannon entropy vanishes if and only if 
@@ -142,7 +136,21 @@ begin
     {
         -- we prove the other direction
         intro h,
-        cases h with j hj,
+        have h01 : (∀ i : ι, X i = 0 ∨ X i = 1), {sorry}, -- use lemma zero_or_one_if_delta
+        clear h, -- h01 is enough
+        norm_num, -- remove minus sign in goal
+        have f0 : ∀ i, (X i) * real.log(X i) = 0,
+        {
+            intro i,
+            specialize h01 i,
+            cases h01 with x0 log0,
+            rw x0,
+            linarith,
+            rw log0,
+            rw real.log_one,
+            linarith,
+        },
+        -- exact finset.sum_eq_zero f0, -- it's almost this but not quite, getting type error
         sorry
     },
 end
