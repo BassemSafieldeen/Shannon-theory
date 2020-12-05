@@ -61,14 +61,14 @@ end
 lemma sum_nonneg_zero {f : ι → ℝ} (hf1 : ∑ i, f i = 0) (hf2: ∀ i, 0 ≤ f i) : 
 ∀ i, f i = 0 :=
 begin
-    -- intro i,
-    -- specialize hf2 i,
-    -- split h' into branches f i = 0 and f i > 0
-    -- first one follows from sum_const_zero
-    -- second one leads to contradiction, so `exfalso` + something
-    -- exact sum_eq_zero_iff.mp hf1,
-    -- exact (sum_eq_zero_iff_of_nonneg hf2).mp hf1,  -- why doesn't this work?
-    sorry,
+	-- intro i,
+	-- specialize hf2 i,
+	-- split h' into branches f i = 0 and f i > 0
+	-- first one follows from sum_const_zero
+	-- second one leads to contradiction, so `exfalso` + something
+	-- exact sum_eq_zero_iff.mp hf1,
+	-- exact (sum_eq_zero_iff_of_nonneg hf2).mp hf1,  -- why doesn't this work?
+	sorry,
 end
 
 lemma helper : ∀ (r : ℝ), 0 < r → real.log(r) = 0 → r = 1 :=
