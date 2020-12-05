@@ -1,5 +1,6 @@
 import algebra.big_operators
 import analysis.special_functions.exp_log
+import to_mathlib_maybe.log
 
 import rnd_var
 
@@ -71,68 +72,6 @@ begin
   sorry,
 end
 
-lemma helper : ∀ (r : ℝ), 0 < r → real.log(r) = 0 → r = 1 :=
-begin
-  intros r hr1 hr2,
-  calc r = real.exp(real.log(r))  : by exact (real.exp_log hr1).symm
-  ... = real.exp(0)               : by rw hr2
-  ... = 1                         : by rw real.exp_zero,
-end
-
-lemma r_neq_zero_one : ∀ r : ℝ, r ≠ 0 ∧ r ≠ 1 → r < 0 ∨ (0 < r ∧ r < 1) ∨ 1 < r :=
-begin
-  intros r hr,
-  by_contradiction,
-  push_neg at h,
-  cases h with r0 hright,
-  cases hright with r01 r1,
-  finish,
-end
-
-lemma helper' : ∀ (r : ℝ), real.log(r) = 0 → r = 0 ∨ r = 1 :=
-begin
-  intro r,
-  contrapose,
-  push_neg,
-  intro h,
-  cases h,
-  have h' : r < 0 ∨ 0 < r ∧ r < 1 ∨ 1 < r, 
-  {
-    apply r_neq_zero_one,
-    split, exact h_left, exact h_right,
-  },
-  cases h',
-  sorry, -- real.log_pos and real.log_neg_eq_log
-  cases h',
-  cases h',
-  by_contradiction,
-  norm_num at h,
-  have h'' : real.log r < 0, {exact real.log_neg h'_left h'_right,},
-  linarith,
-  by_contradiction,
-  push_neg at h,
-  have h' : real.log r > 0, by exact real.log_pos h',
-  linarith,
-end
-
-lemma helper2 : ∀ (r : ℝ), r⁻¹ = 1 → r = 1 := by exact λ {g : ℝ}, inv_eq_one'.mp
-
-lemma log_nonneg : ∀ (r : ℝ), 0 ≤ r → r ≤ 1 → 0 ≤ real.log(r⁻¹) :=
-begin
-  intros r hr,
-  norm_num at *,
-  apply real.log_nonpos,
-  exact hr,
-end
-
-lemma test : (1 : ℝ) / 0 > 1 := 
-begin
-  ring,
-  sorry
-end
-
-#check (1 : ℝ)/0
-
 lemma helper4 (X : ι → ℝ) : 
 (∀ (i : ι), X i = 0 ∨ X i = 1) → (∀ (i : ι), X i = 0 ∨ real.log(X i) = 0) :=
 begin
@@ -192,7 +131,7 @@ begin
       intro i,
       rw mul_nonneg_iff,
       left,
-      split, {apply probs_nonneg}, {apply log_nonneg, apply probs_nonneg, apply probs_le_one},
+      split, {apply probs_nonneg}, {apply real.log_inv_nonneg, apply probs_nonneg, apply probs_le_one},
     },
     -- if the product is zero then one of the factors must be zero
     have H3 : ∀ (i : ι), (X i = 0) ∨ (real.log((X i)⁻¹) = 0),
@@ -209,10 +148,8 @@ begin
       cases H3 with l r,
       left, exact l,
       right,
-      -- specialize helper (X i)⁻¹,
-      -- specialize helper2 (X i),
-      apply helper2,
-      apply helper,
+      rw ← inv_eq_one',
+      apply real.one_of_log_zero_of_pos,
       {
         rw real.log_inv at r,
         rw neg_eq_zero at r,
