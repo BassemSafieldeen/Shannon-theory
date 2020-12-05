@@ -14,6 +14,7 @@ universe x
 variables 
 {ι : Type x} -- indexing type
 [fintype ι] -- tell Lean that the set of all elements ι is finite.
+[decidable_eq ι] -- and that its elements can be compared for equality
 
 noncomputable theory
 
@@ -124,15 +125,6 @@ begin
     exact hr,
 end
 
-lemma helper3 (X : ι → ℝ) (h : ∑ i, X i = 1) [decidable_eq ι] : 
-(∀ i, X i = 0 ∨ X i = 1) 
-→ 
-(∃ j, ∀ i, if (i = j) then (X i = 1) else (X i = 0)) := 
-begin
-    intros hX,
-    sorry
-end
-
 lemma test : (1 : ℝ) / 0 > 1 := 
 begin
     ring,
@@ -145,16 +137,13 @@ lemma helper4 (X : ι → ℝ) :
 (∀ (i : ι), X i = 0 ∨ X i = 1) → (∀ (i : ι), X i = 0 ∨ real.log(X i) = 0) :=
 begin
     intros hi i,
-    specialize hi i,
-    cases hi with x0 log0,
-    left,
-    exact x0,
-    right,
-    rw log0,
-    exact real.log_one,
+    have H : X i = 0 ∨ X i = 1, by exact hi i,
+    cases H with x0 log0,
+    left, exact x0,
+    right, simp only [log0, real.log_one],
 end
 
-lemma helper5 {X : ι → ℝ} [decidable_eq ι] : 
+lemma helper5 {X : ι → ℝ} : 
 (∃ j, ∀ i, ite (i = j) (X i = 1) (X i = 0)) → (∀ i, X i = 0 ∨ X i = 1) := 
 begin
     contrapose,
@@ -182,7 +171,7 @@ X is a deterministic variable.
 
 This is property 10.1.4 here (https://arxiv.org/pdf/1106.1445.pdf)
 -/
-theorem Shannon_entropy_zero_iff_deterministic (X : ι → ℝ) [rnd_var X] [decidable_eq ι] : 
+theorem Shannon_entropy_zero_iff_deterministic (X : ι → ℝ) [rnd_var X] : 
 Shannon_entropy X = 0 ↔ is_deterministic X :=
 begin
     -- we begin by asking Lean to provide the meanings of the 
@@ -194,20 +183,16 @@ begin
         -- we prove one direction
         intro H0,
         -- rewrite in a more convenient form
-        have H1: ∑ (i : ι), X i * real.log ((X i)⁻¹) = 0,
-        {
-            simp only [← real.log_inv, ← mul_neg_eq_neg_mul_symm, ← sum_neg_distrib] at H0,
-            exact H0,
-        },
+        simp only [← real.log_inv, ← mul_neg_eq_neg_mul_symm, ← sum_neg_distrib] at H0,
         -- show each term in the sum must be zero
         have H2 : ∀ (i : ι), (X i) * real.log((X i)⁻¹) = 0,
         {
-            apply sum_nonneg_zero, -- TODO
-            exact H1,
+            apply sum_nonneg_zero,
+            exact H0,
             intro i,
             rw mul_nonneg_iff,
             left,
-            split, {apply probs_nonneg,}, {apply log_nonneg, apply probs_nonneg, apply probs_le_one,},
+            split, {apply probs_nonneg}, {apply log_nonneg, apply probs_nonneg, apply probs_le_one},
         },
         -- if the product is zero then one of the factors must be zero
         have H3 : ∀ (i : ι), (X i = 0) ∨ (real.log((X i)⁻¹) = 0),
@@ -222,8 +207,7 @@ begin
             intros i,
             specialize H3 i,
             cases H3 with l r,
-            left,
-            exact l,
+            left, exact l,
             right,
             -- specialize helper (X i)⁻¹,
             -- specialize helper2 (X i),
@@ -239,7 +223,7 @@ begin
             },
             exact r,
         },
-        apply helper3, exact sum_probs_one, exact H4,
+        apply delta_if_det, exact H4,
     },
     {
         -- we prove the other direction
