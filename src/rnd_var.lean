@@ -22,8 +22,8 @@ variables {X : ι → ℝ} [rnd_var X]
 
 lemma probs_le_one : ∀ i, X i ≤ 1 := 
 begin
-    intros,
-    sorry
+	intros,
+	sorry
 end
 
 variable (X) -- Tell Lean to explicitly ask for X in what follows.
