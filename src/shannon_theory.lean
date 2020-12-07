@@ -177,6 +177,19 @@ begin
   },
 end
 
+lemma
+sum_of_constant_fun {f : ι → ℝ} {c : ℝ} (h1 : ∀ i, f i = c) : 
+∑ i, f i = c * fintype.card ι :=
+begin
+  have h' : ∑ i, f i = ∑ i : ι, c, {finish,},
+  have h'' : ∑ i : ι, c = fintype.card(ι) * c,
+  {
+    rw finset.sum_const,
+    finish,
+  },
+  finish,
+end
+
 /--
 Theorem: The Shannon entropy of a uniform 
 random variable is log(n).
@@ -189,11 +202,20 @@ begin
   have H : - ∑ i, X i * real.log (X i) = ∑ i, X i * real.log (1 / (X i)),
     by simp only [one_div, real.log_inv, mul_neg_eq_neg_mul_symm, sum_neg_distrib],
   unfold is_uniform at hX,
-  
-  -- have hX2 : ∀ i : ι, 1 / (X i) = fintype.card ι, {sorry},
-  -- have hX3 : ∀ i : ι, (X i) * real.log(1 / (X i)) = (1 / fintype.card ι) * real.log(fintype.card ι), {sorry},
-  -- rw hX2 at H,
-  -- rw is_uniform at hX,
   -- we need to subsitute 1 / fintype.card ι for (X i).
+  -- have H : ∀ i, X i * real.log (X i) = (1 / fintype.card ι) * real.log (1 / fintype.card ι), {
+  --   sorry
+  -- },
+  -- have H2 : 
+  -- ∑ i, X i = ((1 / fintype.card ι) * real.log (1 / fintype.card ι)) * fintype.card ι, {
+  --   apply sum_of_constant_fun X,
+  -- },
+  let f : ι → ℝ := λ i, (X i) * real.log (X i),
+  let c : ℝ := (1 / fintype.card ι) * real.log (1 / fintype.card ι),
+  have hX2 : 
+  ∀ i, f i = c, {
+    sorry -- should be easy
+  },
+  -- should be easy from there.
   sorry
 end
