@@ -98,12 +98,6 @@ begin
   exact hi_left,
 end
 
-lemma helper6 {X : ι → ℝ} :
-(∀ i, (X i) = 0 ∨ (X i) = 1) → (∀ i, (X i)⁻¹ > 1 ∨ (X i)⁻¹ = 1) := 
-begin
-  sorry
-end
-
 /--
 Theorem (Minimum value): Shannon entropy vanishes if and only if 
 X is a deterministic variable.
@@ -147,18 +141,19 @@ begin
       specialize H3 i,
       cases H3 with l r,
       left, exact l,
-      right,
-      rw ← inv_eq_one',
-      apply real.one_of_log_zero_of_pos,
+      have hxi : 0 ≤ X i,
       {
-        rw real.log_inv at r,
-        rw neg_eq_zero at r,
-        have hXi0 : (X i) = 0 ∨ (X i) = 1, {sorry}, -- in both cases (X i)⁻¹ > 0
-        have hXi1 : (X i)⁻¹ > 1 ∨ (X i)⁻¹ = 1, {sorry},
-        have hXi4 : (X i)⁻¹ > 0, {sorry},
-        exact hXi4,
+        apply probs_nonneg i,
+        exact _inst_3,
       },
-      exact r,
+      replace hxi := le_iff_lt_or_eq.mp hxi,
+      cases hxi with xi0 xi1,
+      right,
+      rw real.log_inv at r,
+      norm_num at r,
+      exact real.one_of_log_zero_of_pos (X i) xi0 r,
+      left,
+      linarith,
     },
     apply delta_if_det, exact H4,
   },
