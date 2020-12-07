@@ -10,6 +10,18 @@ begin
   ... = 1               : by rw exp_zero,
 end
 
+lemma zero_or_one_of_log_zero_if_nonneg : ∀ (r : ℝ), 0 ≤ r → log(r) = 0 → r = 0 ∨ r = 1 :=
+begin
+  intros r hr logr,
+  replace hr := le_iff_lt_or_eq.mp hr,
+  cases hr with r1 r0,
+  right,
+  exact one_of_log_zero_of_pos r r1 logr,
+  left,
+  linarith,
+end
+
+
 lemma log_inv_nonneg : ∀ (r : ℝ), 0 ≤ r → r ≤ 1 → 0 ≤ log(r⁻¹) :=
 begin
   intros r hr,
@@ -27,30 +39,23 @@ begin
   finish,
 end
 
-lemma zero_or_one_of_log_zero : ∀ (r : ℝ), log(r) = 0 → r = 0 ∨ r = 1 :=
+lemma zero_or_pm_one_of_log_zero : ∀ (r : ℝ), log(r) = 0 → r = -1 ∨ r = 0 ∨ r = 1 :=
 begin
-  intro r,
-  contrapose,
-  push_neg,
-  intro h,
-  cases h,
-  have h' : r < 0 ∨ 0 < r ∧ r < 1 ∨ 1 < r, 
-  {
-    apply r_neq_zero_one,
-    split, exact h_left, exact h_right,
-  },
-  cases h',
-  sorry, -- real.log_pos and real.log_neg_eq_log
-  cases h',
-  cases h',
-  by_contradiction,
-  norm_num at h,
-  have h'' : log r < 0, by exact log_neg h'_left h'_right,
+  intros r log0,
+  -- case r < 0
+  have r_sign : r < 0 ∨ 0 ≤ r, {by exact lt_or_ge r 0,},
+  cases r_sign with r_neg r_nonneg,
+  rw ← log_neg_eq_log at log0,
+  have r_sign' : 0 ≤ -r, {by linarith,},
+  have h' : -r = 0 ∨ -r = 1, {by exact zero_or_one_of_log_zero_if_nonneg (-r) r_sign' log0,},
+  left,
+  cases h' with r0 r1,
+  exfalso,
   linarith,
-  by_contradiction,
-  push_neg at h,
-  have h' : log r > 0, by exact log_pos h',
   linarith,
+  -- case r ≥ 0, proved by zero_or_one_of_log_zero_if_nonneg
+  right,
+  exact zero_or_one_of_log_zero_if_nonneg r r_nonneg log0,
 end
 
 end real
