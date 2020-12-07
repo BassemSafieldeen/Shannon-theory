@@ -62,14 +62,21 @@ end
 lemma sum_nonneg_zero {f : ι → ℝ} (hf1 : ∑ i, f i = 0) (hf2: ∀ i, 0 ≤ f i) : 
 ∀ i, f i = 0 :=
 begin
-  -- intro i,
-  -- specialize hf2 i,
-  -- split h' into branches f i = 0 and f i > 0
-  -- first one follows from sum_const_zero
-  -- second one leads to contradiction, so `exfalso` + something
-  -- exact sum_eq_zero_iff.mp hf1,
-  -- exact (sum_eq_zero_iff_of_nonneg hf2).mp hf1,  -- why doesn't this work?
-  sorry,
+  intro i,
+  have H : ∑ i, f i = 0 ↔ ∀ i, f i = 0, {
+    rw sum_eq_zero_iff_of_nonneg,
+    {
+      finish,
+    },
+    {
+      simp only [hf2],
+      finish,
+    },
+  },
+  have H2 : ∀ i, f i = 0, {
+    exact H.1 hf1,
+  },
+  apply H2,
 end
 
 lemma helper4 (X : ι → ℝ) : 
@@ -182,6 +189,7 @@ begin
   have H : - ∑ i, X i * real.log (X i) = ∑ i, X i * real.log (1 / (X i)),
     by simp only [one_div, real.log_inv, mul_neg_eq_neg_mul_symm, sum_neg_distrib],
   unfold is_uniform at hX,
+  
   -- have hX2 : ∀ i : ι, 1 / (X i) = fintype.card ι, {sorry},
   -- have hX3 : ∀ i : ι, (X i) * real.log(1 / (X i)) = (1 / fintype.card ι) * real.log(fintype.card ι), {sorry},
   -- rw hX2 at H,
