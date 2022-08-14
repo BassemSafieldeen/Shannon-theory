@@ -22,8 +22,16 @@ variables {X : ι → ℝ} [rnd_var X]
 
 lemma probs_le_one : ∀ i, X i ≤ 1 := 
 begin
-  intros,
-  sorry
+  have h1 : ∑ i, X i ≤ 1, by exact le_of_eq rnd_var.sum_probs_one,
+  have h2 : ∀ i, X i ≤ ∑ i, X i, {
+    intro i,
+    apply single_le_sum,
+    intros i hi,
+    apply rnd_var.probs_nonneg,
+    norm_num,
+  },
+  intro i,
+  apply le_trans, exact h2 i, exact h1,
 end
 
 variable (X) -- Tell Lean to explicitly ask for X in what follows.
