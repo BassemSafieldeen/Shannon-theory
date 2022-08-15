@@ -1,0 +1,49 @@
+name: Lean
+
+# Controls when the workflow will run
+on:
+  push:
+    branches: [ workflow_test, staging, trying ]
+  pull_request:
+    branches: [ workflow_test ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    env:
+      # number of commits to check for olean cache
+      GIT_HISTORY_DEPTH: 20
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: ${{ env.GIT_HISTORY_DEPTH }}
+
+      - name: install elan
+        run: |
+          set -o pipefail
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain none -y
+          ~/.elan/bin/lean --version
+          source $HOME/.elan/env
+      - name: install Python
+        if: ${{ ! 1 }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: leanpkg build
+        id: build
+        run: |
+          python3 -m pip install pipx
+          python3 -m pipx ensurepath
+          source ~/.profile
+          pipx install mathlibtools
+          leanpkg configure
+          wget -q https://raw.githubusercontent.com/leanprover-community/mathlib/master/scripts/detect_errors.py
+          lean --json -T100000 --make src | python3 detect_errors.py 
+#          ~/.elan/toolchains/stable/bin/lean --json -T100000 --make src | python3 detect_errors.py
