@@ -1,6 +1,6 @@
 import algebra.big_operators
 import analysis.special_functions.exp_log
-import to_mathlib_maybe.log
+import log
 
 import rnd_var
 
