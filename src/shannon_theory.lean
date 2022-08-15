@@ -189,33 +189,3 @@ begin
   },
   finish,
 end
-
-/--
-Theorem: The Shannon entropy of a uniform 
-random variable is log(n).
--/
-theorem Shannon_entropy_of_uniform (X : ι → ℝ) [rnd_var X] : 
-is_uniform X → Shannon_entropy X = real.log(fintype.card ι) :=
-begin
-  intro hX,
-  rw Shannon_entropy,
-  have H : - ∑ i, X i * real.log (X i) = ∑ i, X i * real.log (1 / (X i)),
-    by simp only [one_div, real.log_inv, mul_neg_eq_neg_mul_symm, sum_neg_distrib],
-  unfold is_uniform at hX,
-  -- we need to subsitute 1 / fintype.card ι for (X i).
-  -- have H : ∀ i, X i * real.log (X i) = (1 / fintype.card ι) * real.log (1 / fintype.card ι), {
-  --   sorry
-  -- },
-  -- have H2 : 
-  -- ∑ i, X i = ((1 / fintype.card ι) * real.log (1 / fintype.card ι)) * fintype.card ι, {
-  --   apply sum_of_constant_fun X,
-  -- },
-  let f : ι → ℝ := λ i, (X i) * real.log (X i),
-  let c : ℝ := (1 / fintype.card ι) * real.log (1 / fintype.card ι),
-  have hX2 : 
-  ∀ i, f i = c, {
-    sorry -- should be easy
-  },
-  -- should be easy from there.
-  sorry
-end
